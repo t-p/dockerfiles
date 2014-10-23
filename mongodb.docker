@@ -10,5 +10,4 @@ RUN rm -rf /var/ilb/apt/lists/*
   
 RUN mkdir -p /data/db
   
-EXPOSE 27017
 ENTRYPOINT usr/bin/mongod
