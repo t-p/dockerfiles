@@ -1,0 +1,14 @@
+FROM debian:wheezy
+  
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10
+RUN echo 'deb http://downloads-distro.mongodb.org/repo/debian-sysvinit dist 10gen' | tee /etc/apt/sources.list.d/mongodb.list
+
+RUN apt-get update && apt-get install -y adduser mongodb-org
+RUN rm -rf /var/ilb/apt/lists/*
+  
+RUN mkdir -p /data/db
+  
+EXPOSE 27017
+ENTRYPOINT usr/bin/mongod
