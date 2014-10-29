@@ -1,0 +1,27 @@
+FROM debian:wheezy
+  
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv ACCC4CF8
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/  wheezy-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list
+
+RUN apt-get update
+RUN apt-get install -y python-software-properties software-properties-common \
+    postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3
+
+RUN rm -rf /var/ilb/apt/lists/*
+
+USER postgres
+  
+RUN    /etc/init.d/postgresql start \ 
+    && psql --command "CREATE USER rails WITH SUPERUSER PASSWORD 'geheim';" \
+    && createdb -O rails rails-omniauth 
+
+RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/9.3/main/pg_hba.conf
+RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
+
+VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
+
+EXPOSE 5432
+
+CMD ["/usr/lib/postgresql/9.3/bin/postgres", "-D", "/var/lib/postgresql/9.3/main", "-c", "config_file=/etc/postgresql/9.3/main/postgresql.conf"]
